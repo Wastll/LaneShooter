@@ -51,11 +51,14 @@ int main(void)
 
     InitWindow(screenWidth, screenHeight, "Lane Shooter - Perspective Prototype");
 
+    Texture2D skybox = LoadTexture("assets/skybox.png");
+    SetTextureFilter(skybox,TEXTURE_FILTER_POINT);
+
     RenderTexture2D target = LoadRenderTexture(renderWidth, renderHeight);
     SetTextureFilter(target.texture, TEXTURE_FILTER_POINT);
 
-    Model grassBlock = LoadModel("assets/grass_block.obj");
-    Texture2D texture_grass_block = LoadTexture("assets/texture_grass_block.png");
+    Model grassBlock = LoadModel("assets/cube.obj");
+    Texture2D texture_grass_block = LoadTexture("assets/flat_style_grass.png");
     grassBlock.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture_grass_block;
     SetTextureFilter(texture_grass_block, TEXTURE_FILTER_POINT);
 
@@ -104,6 +107,13 @@ int main(void)
         BeginTextureMode(target);
 
         ClearBackground((Color){100, 149, 237, 255});
+        // DrawTexture(skybox,0,0,WHITE);
+
+                DrawTexturePro(
+            skybox,
+            (Rectangle){0, 0, (float)skybox.width, (float)skybox.height}, // Flip vertically when drawing render texture
+            (Rectangle){0, 0, (float)renderWidth, (float)renderHeight},
+            (Vector2){0, 0}, 0.0f, WHITE);
 
         BeginMode3D(camera);
         drawLanesModel(platform_shift, grassBlock);
