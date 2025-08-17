@@ -1,22 +1,34 @@
-# Compiler
+# Compiler and flags
 CC = gcc
+CFLAGS = -Wall -std=c99 -Iinclude
 
-# Compiler flags
-CFLAGS = -Wall -std=c99
+# Directories
+SRC_DIR = src
+BUILD_DIR = build
 
-# Linker flags for Raylib
-LDFLAGS = -lraylib -lm -ldl -lpthread -lGL -lX11
+# Source and object files (recursive)
+SRCS := $(shell find $(SRC_DIR) -name '*.c')
+OBJS := $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(SRCS))
 
-# Source and output
-SRC = src/main.c
-OUT = ./build/LaneShooter
+# Output binary
+BIN = $(BUILD_DIR)/lane_shooter
 
-# Default build
-all: $(OUT)
+# Libraries (Linux example)
+LIBS = -lraylib -lm -ldl -lpthread -lGL -lrt -lX11
 
-$(OUT): $(SRC)
-	$(CC) $(CFLAGS) $(SRC) -o $(OUT) $(LDFLAGS)
+# Default target
+all: $(BIN)
 
-# Clean build files
+# Link
+$(BIN): $(OBJS)
+	@mkdir -p $(BUILD_DIR)
+	$(CC) $(OBJS) -o $@ $(LIBS)
+
+# Compile with directory creation
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Clean
 clean:
-	rm -f $(OUT)
+	rm -rf $(BUILD_DIR)/*.o $(BIN)

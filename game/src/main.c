@@ -1,34 +1,30 @@
 #include "raylib.h"
+#include "game.h"
+#include "assets.h"
+
+#define renderWidth 320
+#define renderHeight 180
+
+#define screenWidth 1920
+#define screenHeight 1080
 
 int main(void)
 {
-    // Screen dimensions
-    const int screenWidth = 1280;
-    const int screenHeight = 720;
-
-    // Initialize the window
-    InitWindow(screenWidth, screenHeight, "Lane Shooter - Main Game");
-
-    // Target FPS (optional)
+    InitWindow(screenWidth, screenHeight, "Lane Shooter");
     SetTargetFPS(60);
+    ToggleFullscreen();
+    SetWindowMonitor(1);
 
-    // Main game loop
+    init_game(renderWidth,renderHeight);
+
     while (!WindowShouldClose())
     {
-        // Update
-        // ...
-
-        // Draw
-        BeginDrawing();
-        ClearBackground(RAYWHITE);
-
-        DrawText("Lane Shooter - Main Game Placeholder", 20, 20, 20, DARKGRAY);
-
-        EndDrawing();
+        draw_framebuffer();
+        draw_upscale();
+        update_game();
     }
 
-    // Cleanup
+    unload_assets();
     CloseWindow();
-
     return 0;
 }

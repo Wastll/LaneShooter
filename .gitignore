@@ -1,3 +1,6 @@
+# Ignore .vscode
+.vscode
+
 # Ignore compiled binaries and output
 build/
 LaneShooter
