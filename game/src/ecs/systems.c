@@ -2,14 +2,15 @@
 #include "ecs.h"
 #include "components.h"
 #include "raymath.h"
+#include "stdio.h"
 
 #include <stdbool.h>
 
 #define GRAVITY_ACCELERATION -9.81f
- 
+
 static bool hasPhysicsComponents(unsigned int entity)
 {
-    return entity_used[entity] && hasAcceleration[entity] && hasVelocity[entity] && hasPosition[entity];
+    return entity_used[entity] && hasAcceleration[entity] && hasVelocity[entity] && hasPosition[entity] && hasFriction[entity];
 }
 
 void update_physics(float dt)
@@ -19,7 +20,23 @@ void update_physics(float dt)
         if (hasPhysicsComponents(e))
         {
             velocities[e] = Vector3Add(velocities[e], Vector3Scale(accelerations[e], dt));
+
+            
+            float damping = powf(frictions[e], dt * 60.0f);
+            velocities[e].x /= damping;
+            velocities[e].y /= damping;
+            velocities[e].z /= damping;
+            
+            if (hasMaxVelocity[e])
+            {
+                velocities[e].x = Clamp(velocities[e].x, -max_velocities[e].x, max_velocities[e].x);
+                velocities[e].y = Clamp(velocities[e].y, -max_velocities[e].y, max_velocities[e].y);
+                velocities[e].z = Clamp(velocities[e].z, -max_velocities[e].z, max_velocities[e].z);
+            }
+            
             positions[e] = Vector3Add(positions[e], Vector3Scale(velocities[e], dt));
+            
+            printf("%d : %f\n", e, velocities[e].x);
         }
     }
 }

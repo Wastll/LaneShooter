@@ -6,7 +6,11 @@
 #include "raymath.h"
 #include "stdio.h"
 
-static Entity player = 0;
+static Entity player = 1;
+
+#define PLAYER_ACC_X 35.0f
+#define PLAYER_FRIC 1.3f
+#define PLAYER_MAX_VEL 1.75f
 
 void init_player()
 {
@@ -18,23 +22,27 @@ void init_player()
 
     velocities[player] = (Vector3){0, 0, 0};
     hasVelocity[player] = true;
+    max_velocities[player] = (Vector3){PLAYER_MAX_VEL,0,0};
+    hasMaxVelocity[player] = true;
 
     accelerations[player] = (Vector3){0, 0, 0};
     hasAcceleration[player] = true;
-    
+
+    frictions[player] = PLAYER_FRIC;
+    hasFriction[player] = true;
+
+
     // apply_gravity(player);
 }
 
 void update_player()
 {
-    // Temporary z controls for alignment
-    float speed = 0.5f;
-
-    if (IsKeyDown(KEY_W)) positions[player].z += speed;
-    if (IsKeyDown(KEY_S)) positions[player].z -= speed;
-
-    if (IsKeyDown(KEY_E)) positions[player].y += speed;
-    if (IsKeyDown(KEY_Q)) positions[player].y -= speed;
+    accelerations[player] = (Vector3){0, 0, 0};
+    
+    if (IsKeyDown(KEY_D))
+        apply_acc(player, (Vector3){PLAYER_ACC_X, 0, 0});
+    if (IsKeyDown(KEY_A))
+        apply_acc(player, (Vector3){-PLAYER_ACC_X, 0, 0});
 }
 
 void draw_player(const Camera3D *cam)
@@ -43,8 +51,8 @@ void draw_player(const Camera3D *cam)
     Vector3 pos = positions[player];
 
     Vector3 draw_pos = pos;
-    draw_pos.y += scale / 2.0f; // Align player bottom with y=0
+    draw_pos.y += scale / 2.0f;
 
     DrawBillboard(*cam, get_assets()->player_placeholder, draw_pos, scale, WHITE);
-    DrawSphere(positions[player],0.05f,PINK);
+    DrawSphere(positions[player], 0.05f, PINK);
 }

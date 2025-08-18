@@ -5,8 +5,8 @@
 #include "string.h"
 #include "stdio.h"
 #include "world.h"
+#include "cam.h"
 
-static Camera3D camera;
 static RenderTexture2D target;
 
 void init_game(int fb_w, int fb_h)
@@ -14,15 +14,9 @@ void init_game(int fb_w, int fb_h)
     init_assets();
     init_player();
     init_world();
-
+    init_cam();
     // Fixed camera position (in cube units)
-    camera = (Camera3D){0};
-    camera.position = (Vector3){0, 4.5f, 3.5f};
-    camera.target = (Vector3){0, 0.0f, -2.5f};
-    camera.up = (Vector3){0, 1, 0};
-    camera.fovy = 60.0f;
 
-    camera.projection = CAMERA_PERSPECTIVE;
 
     target = LoadRenderTexture(fb_w, fb_h);
     SetTextureFilter(target.texture, TEXTURE_FILTER_POINT);
@@ -33,12 +27,9 @@ void update_game(void)
     float dt = GetFrameTime();
     update_physics(dt);
     update_player();
-
+    update_cam();
     // Straight look at origin (0,0,0) for alignment
-    if(IsKeyDown(KEY_A)){
-        camera.position = (Vector3){0, 0.0f, 5.0f};
-        camera.target = (Vector3){0, 0.0f, 0.0f};
-    }
+
 }
 
 void draw_framebuffer()
@@ -55,9 +46,9 @@ void draw_framebuffer()
 
     // --- 3D ---
 
-    BeginMode3D(camera);
+    BeginMode3D(*get_cam());
     draw_lanes();
-    DrawSphere(camera.target, 0.05f, RED); // Camera target
+    DrawSphere(get_cam()->target, 0.05f, RED); // Camera target
     EndMode3D();
 
     EndTextureMode();
@@ -78,8 +69,8 @@ void draw_upscale()
 
     // --- 3D ---
 
-    BeginMode3D(camera);
-    draw_player(&camera);
+    BeginMode3D(*get_cam());
+    draw_player(get_cam());
     DrawSphere((Vector3){0,0,0},0.05f,RED); // Origin
     EndMode3D();
 
