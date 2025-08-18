@@ -13,12 +13,15 @@ void init_game(int fb_w, int fb_h)
 {
     init_assets();
     init_player();
+    init_world();
 
+    // Fixed camera position (in cube units)
     camera = (Camera3D){0};
-    camera.position = (Vector3){512, 110, 82.0f};
-    camera.target = (Vector3){512, -312.0f, -512.0f};
+    camera.position = (Vector3){0, 4.5f, 3.5f};
+    camera.target = (Vector3){0, 0.0f, -2.5f};
     camera.up = (Vector3){0, 1, 0};
-    camera.fovy = 58.0f;
+    camera.fovy = 60.0f;
+
     camera.projection = CAMERA_PERSPECTIVE;
 
     target = LoadRenderTexture(fb_w, fb_h);
@@ -29,6 +32,13 @@ void update_game(void)
 {
     float dt = GetFrameTime();
     update_physics(dt);
+    update_player();
+
+    // Straight look at origin (0,0,0) for alignment
+    if(IsKeyDown(KEY_A)){
+        camera.position = (Vector3){0, 0.0f, 5.0f};
+        camera.target = (Vector3){0, 0.0f, 0.0f};
+    }
 }
 
 void draw_framebuffer()
@@ -47,6 +57,7 @@ void draw_framebuffer()
 
     BeginMode3D(camera);
     draw_lanes();
+    DrawSphere(camera.target, 0.05f, RED); // Camera target
     EndMode3D();
 
     EndTextureMode();
@@ -55,7 +66,7 @@ void draw_framebuffer()
 void draw_upscale()
 {
     BeginDrawing();
-    
+
     // --- 2D ---
     ClearBackground(BLACK);
 
@@ -64,11 +75,12 @@ void draw_upscale()
         (Rectangle){0, 0, target.texture.width, -target.texture.height},
         (Rectangle){0, 0, GetScreenWidth(), GetScreenHeight()},
         (Vector2){0, 0}, 0.0f, WHITE);
-    
+
     // --- 3D ---
 
     BeginMode3D(camera);
     draw_player(&camera);
+    DrawSphere((Vector3){0,0,0},0.05f,RED); // Origin
     EndMode3D();
 
     draw_ui();
@@ -79,5 +91,5 @@ void draw_upscale()
 // Will get moved later
 void draw_ui(void)
 {
-    DrawText(TextFormat("%d FPS", GetFPS()), 10, 10, 20, RED);
+    DrawText(TextFormat("%d FPS", GetFPS()), 10, 10, 20, PINK);
 }
