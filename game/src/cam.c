@@ -39,7 +39,6 @@ void init_cam(void)
 
 void update_cam()
 {
-
     if (IsKeyDown(KEY_D))
         apply_vel(e_cam, (Vector3){CAM_SPEED, 0, 0});
     if (IsKeyDown(KEY_A))

@@ -8,6 +8,19 @@
 
 #define GRAVITY_ACCELERATION -9.81f
 
+void update_animation(Entity e, float dt) {
+    if (!hasAnimation[e]) return;
+
+    
+    Anim *anim = &animations[e];
+    anim->timer += dt;
+    if (anim->timer >= anim->frameTime) {
+        anim->frame++;
+        if (anim->frame >= anim->maxFrames) anim->frame = 0;
+        anim->timer = 0;
+    }
+}
+
 static bool hasPhysicsComponents(unsigned int entity)
 {
     return entity_used[entity] && hasAcceleration[entity] && hasVelocity[entity] && hasPosition[entity] && hasFriction[entity];
@@ -33,10 +46,14 @@ void update_physics(float dt)
                 velocities[e].y = Clamp(velocities[e].y, -max_velocities[e].y, max_velocities[e].y);
                 velocities[e].z = Clamp(velocities[e].z, -max_velocities[e].z, max_velocities[e].z);
             }
-            
+
             positions[e] = Vector3Add(positions[e], Vector3Scale(velocities[e], dt));
             
-            printf("%d : %f\n", e, velocities[e].x);
+            // printf("%d : %f\n", e, velocities[e].x);
+        }
+
+        if(hasAnimation[e]){
+            update_animation(e,dt);
         }
     }
 }

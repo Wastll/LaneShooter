@@ -12,11 +12,10 @@ static RenderTexture2D target;
 void init_game(int fb_w, int fb_h)
 {
     init_assets();
-    init_player();
-    init_world();
     init_cam();
+    init_world();
+    init_player();
     // Fixed camera position (in cube units)
-
 
     target = LoadRenderTexture(fb_w, fb_h);
     SetTextureFilter(target.texture, TEXTURE_FILTER_POINT);
@@ -26,10 +25,8 @@ void update_game(void)
 {
     float dt = GetFrameTime();
     update_physics(dt);
-    update_player();
     update_cam();
-    // Straight look at origin (0,0,0) for alignment
-
+    update_player();
 }
 
 void draw_framebuffer()
