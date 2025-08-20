@@ -6,7 +6,7 @@
 
 #include <stdbool.h>
 
-#define GRAVITY_ACCELERATION -9.81f
+#define GRAVITY_ACCELERATION 3*-9.81f
 
 void update_animation(Entity e, float dt)
 {
@@ -37,9 +37,9 @@ void update_physics(float dt)
         {
             velocities[e] = Vector3Add(velocities[e], Vector3Scale(accelerations[e], dt));
 
-            float damping = powf(frictions[e], dt * 60.0f);
+            float damping = positions[e].y > 0 ? 1.02f : powf(frictions[e], dt * 60.0f);
             velocities[e].x /= damping;
-            velocities[e].y /= damping;
+            // velocities[e].y /= damping;
             velocities[e].z /= damping;
 
             if (hasMaxVelocity[e])
@@ -56,9 +56,19 @@ void update_physics(float dt)
                     velocities[e].z = clamped.y;
                 }
 
-                velocities[e].y = Clamp(velocities[e].y,-max_velocities[e].y,-max_velocities[e].y); // No directional scaling in y direction
+                // velocities[e].y = Clamp(velocities[e].y,-max_velocities[e].y,-max_velocities[e].y); // No directional scaling in y direction
             }
-
+            if (hasGravity[e])
+            {
+                if (positions[e].y > 0)
+                    apply_gravity(e);
+                else
+                {
+                    if(positions[e].y<0) positions[e].y = 0;
+                    if(velocities[e].y<0)velocities[e].y = 0;
+                    
+                }
+            }
             positions[e] = Vector3Add(positions[e], Vector3Scale(velocities[e], dt));
         }
 

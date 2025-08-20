@@ -17,7 +17,7 @@ void init_player()
 {
     entity_used[player] = true;
 
-    positions[player] = (Vector3){0, 0, -2.5f};
+    positions[player] = (Vector3){0, 5, -2.5f};
     hasPosition[player] = true;
     velocities[player] = (Vector3){0, 0, 0};
     hasVelocity[player] = true;
@@ -25,8 +25,9 @@ void init_player()
     hasAcceleration[player] = true;
     frictions[player] = 1.3f;
     hasFriction[player] = true;
-    max_velocities[player] = (Vector3){0};
+    max_velocities[player] = (Vector3){0,10,0};
     hasMaxVelocity[player] = true;
+    hasGravity[player] = true;
 
     hasAnimation[player] = true;
 
@@ -48,7 +49,6 @@ void init_player()
     pdata.anim_idle = (Anim){get_assets()->player_spritesheet_idle, 0, 4, 0.4f, 0, 16, 32, pdata.cycle_index};
     pdata.anim_run = (Anim){get_assets()->player_spritesheet_run, 0, 6, 0.2f * 7 / 11, 0, 16, 32, pdata.cycle_index};
 
-    // apply_gravity(player);
 }
 
 static int get_cycle_index(Vector2 dir)
@@ -85,7 +85,11 @@ static void handle_player_input()
     if (IsKeyDown(KEY_A)) { new_acc.x -= pdata.acc_x; new_dir.x -= 1; }
     if (IsKeyDown(KEY_W)) { new_acc.z -= pdata.acc_z; new_dir.y -= 1; }
     if (IsKeyDown(KEY_S)) { new_acc.z += pdata.acc_z; new_dir.y += 1; }
+    if (IsKeyReleased(KEY_SPACE)) { apply_vel(player,(Vector3){velocities[player].x*3,8,velocities[player].z*3});}
 
+    if(positions[player].y>0){ max_velocities[player]=Vector3Add(max_velocities[player],(Vector3){30,0,30});
+    pdata.run_max_vel+=30;    
+}
     // Running
     if (IsKeyDown(KEY_LEFT_SHIFT)) {
         max_velocities[player] = (Vector3){pdata.run_max_vel, 0, pdata.run_max_vel};
@@ -96,6 +100,8 @@ static void handle_player_input()
     }
 
     apply_acc(player, new_acc);
+    apply_gravity(player);
+
 
     if (new_dir.x != 0 || new_dir.y != 0)
         pdata.direction_vec = Vector2Normalize(new_dir);

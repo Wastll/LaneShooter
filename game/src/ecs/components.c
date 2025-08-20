@@ -22,3 +22,4 @@ bool hasVelocity[MAX_ENTITIES] = {false};
 bool hasAcceleration[MAX_ENTITIES] = {false};
 bool hasFriction[MAX_ENTITIES] = {false};
 bool hasMaxVelocity[MAX_ENTITIES] = {false};
+bool hasGravity[MAX_ENTITIES] = {false};

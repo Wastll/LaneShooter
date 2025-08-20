@@ -37,7 +37,7 @@ extern bool hasPosition[MAX_ENTITIES];
 extern bool hasVelocity[MAX_ENTITIES];
 extern bool hasAcceleration[MAX_ENTITIES];
 extern bool hasMaxVelocity[MAX_ENTITIES];
-
 extern bool hasFriction[MAX_ENTITIES];
+extern bool hasGravity[MAX_ENTITIES];
 
 #endif
