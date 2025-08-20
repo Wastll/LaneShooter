@@ -25,7 +25,7 @@ void update_game(void)
 {
     float dt = GetFrameTime();
     update_physics(dt);
-    update_cam();
+    update_cam(positions[1].x-positions[0].x);
     update_player();
 }
 
@@ -80,4 +80,16 @@ void draw_upscale()
 void draw_ui(void)
 {
     DrawText(TextFormat("%d FPS", GetFPS()), 10, 10, 20, PINK);
+    int x = 10, y = GetScreenHeight()-100; // Screen position for text
+    int spacing = 24;
+    
+    DrawText(TextFormat("POS: X %.2f  Y %.2f  Z %.2f", 
+        positions[1].x, positions[1].y, positions[1].z), x, y, 20, GREEN);
+
+    DrawText(TextFormat("VEL: X %.2f  Y %.2f  Z %.2f", 
+        velocities[1].x, velocities[1].y, velocities[1].z), x, y + spacing, 20, YELLOW);
+
+    DrawText(TextFormat("ACC: X %.2f  Y %.2f  Z %.2f", 
+        accelerations[1].x, accelerations[1].y, accelerations[1].z), x, y + 2*spacing, 20, ORANGE);
+
 }

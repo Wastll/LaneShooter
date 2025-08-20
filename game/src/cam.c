@@ -8,8 +8,7 @@
 static Camera3D cam;
 static Entity e_cam = 0;
 
-#define CAM_SPEED 0.7f
-#define CAM_FRIC 1.4f
+#define CAM_FRIC 1.5f
 
 void init_cam(void)
 {
@@ -37,12 +36,9 @@ void init_cam(void)
     cam.projection = CAMERA_PERSPECTIVE;
 }
 
-void update_cam()
+void update_cam(float vel)
 {
-    if (IsKeyDown(KEY_D))
-        apply_vel(e_cam, (Vector3){CAM_SPEED, 0, 0});
-    if (IsKeyDown(KEY_A))
-        apply_vel(e_cam, (Vector3){-CAM_SPEED, 0, 0});
+    apply_vel(e_cam, (Vector3){vel, 0, 0});
 
     cam.position = positions[e_cam];
 
