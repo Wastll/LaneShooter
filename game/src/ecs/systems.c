@@ -37,7 +37,7 @@ void update_physics(float dt)
         {
             velocities[e] = Vector3Add(velocities[e], Vector3Scale(accelerations[e], dt));
 
-            float damping = positions[e].y > 0 ? 1.02f : powf(frictions[e], dt * 60.0f);
+            float damping = positions[e].y && e!=0 > 0 ? 1.02f : powf(frictions[e], dt * 60.0f);
             velocities[e].x /= damping;
             // velocities[e].y /= damping;
             velocities[e].z /= damping;

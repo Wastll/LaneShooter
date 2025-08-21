@@ -5,24 +5,23 @@
 #include "components.h"
 
 
-typedef struct {
+typedef struct PlayerData {
     float acc_walk;
     float acc_run;
+
     float walk_max_vel;
     float run_max_vel;
-    float friction;
+    float in_air_max_vel;
 
-    float acc_x;
-    float acc_z;
-    float max_vel;
-
-    Vector2 movement_vec;
+    bool is_in_air;
+    
     Vector2 direction_vec;
-    int cycle_index;
+    Vector2 movement_vec;
 
-    Anim anim_walk;
     Anim anim_idle;
+    Anim anim_walk;
     Anim anim_run;
+    int cycle_index;
 } PlayerData;
 
 

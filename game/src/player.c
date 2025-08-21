@@ -19,36 +19,39 @@ void init_player()
 
     positions[player] = (Vector3){0, 5, -2.5f};
     hasPosition[player] = true;
+
     velocities[player] = (Vector3){0, 0, 0};
     hasVelocity[player] = true;
+    
     accelerations[player] = (Vector3){0, 0, 0};
     hasAcceleration[player] = true;
+    
     frictions[player] = 1.3f;
     hasFriction[player] = true;
-    max_velocities[player] = (Vector3){0,10,0};
+    
+    max_velocities[player] = (Vector3){0,3,0};
     hasMaxVelocity[player] = true;
+    
     hasGravity[player] = true;
 
     hasAnimation[player] = true;
 
     pdata.acc_walk = 35.0f;
     pdata.acc_run = 55.0f;
+
     pdata.walk_max_vel = 1.75f;
     pdata.run_max_vel = 3.00f;
-    pdata.friction = 1.3f;
+    pdata.in_air_max_vel = 4.00f;
 
-    pdata.acc_x = pdata.acc_walk;
-    pdata.acc_z = pdata.acc_walk;
-    pdata.max_vel = pdata.walk_max_vel;
+    pdata.is_in_air = false;
 
     pdata.direction_vec = (Vector2){0};
     pdata.movement_vec = (Vector2){0};
-    pdata.cycle_index = 0;
-
+    
     pdata.anim_walk = (Anim){get_assets()->player_spritesheet_walk, 0, 4, 0.2f, 0, 16, 32, pdata.cycle_index};
-    pdata.anim_idle = (Anim){get_assets()->player_spritesheet_idle, 0, 4, 0.4f, 0, 16, 32, pdata.cycle_index};
-    pdata.anim_run = (Anim){get_assets()->player_spritesheet_run, 0, 6, 0.2f * 7 / 11, 0, 16, 32, pdata.cycle_index};
-
+    pdata.anim_idle = (Anim){get_assets()->player_spritesheet_idle, 0, 4, 0.35f, 0, 16, 32, pdata.cycle_index};
+    pdata.anim_run = (Anim){get_assets()->player_spritesheet_run, 0, 6, 0.2f * pdata.walk_max_vel / pdata.run_max_vel, 0, 16, 32, pdata.cycle_index};
+    pdata.cycle_index = 0;
 }
 
 static int get_cycle_index(Vector2 dir)
@@ -75,41 +78,30 @@ void update_player()
 
 static void handle_player_input()
 {
-    accelerations[player] = (Vector3){0, 0, 0};
-
-    Vector2 new_dir = {0, 0};
+    accelerations[player] = (Vector3){0};
+    Vector2 new_dir = {0};
     Vector3 new_acc = {0};
 
-    // General movement
-    if (IsKeyDown(KEY_D)) { new_acc.x += pdata.acc_x; new_dir.x += 1; }
-    if (IsKeyDown(KEY_A)) { new_acc.x -= pdata.acc_x; new_dir.x -= 1; }
-    if (IsKeyDown(KEY_W)) { new_acc.z -= pdata.acc_z; new_dir.y -= 1; }
-    if (IsKeyDown(KEY_S)) { new_acc.z += pdata.acc_z; new_dir.y += 1; }
-    if (IsKeyReleased(KEY_SPACE)) { apply_vel(player,(Vector3){velocities[player].x*3,8,velocities[player].z*3});}
+    pdata.is_in_air = positions[player].y > 0;
 
-    if(positions[player].y>0){ max_velocities[player]=Vector3Add(max_velocities[player],(Vector3){30,0,30});
-    pdata.run_max_vel+=30;    
-}
-    // Running
-    if (IsKeyDown(KEY_LEFT_SHIFT)) {
-        max_velocities[player] = (Vector3){pdata.run_max_vel, 0, pdata.run_max_vel};
-        pdata.acc_x = pdata.acc_z = pdata.acc_run;
-    } else {
-        max_velocities[player] = (Vector3){pdata.walk_max_vel, 0, pdata.walk_max_vel};
-        pdata.acc_x = pdata.acc_z = pdata.acc_walk;
-    }
+    float acc = IsKeyDown(KEY_LEFT_SHIFT) ? pdata.acc_run : pdata.acc_walk;
+    float max_vel = IsKeyDown(KEY_LEFT_SHIFT) ? (pdata.is_in_air ? pdata.in_air_max_vel : pdata.run_max_vel) : pdata.walk_max_vel;
+    max_velocities[player] = (Vector3){ max_vel, 0, max_vel };
+
+    if (IsKeyDown(KEY_D)) new_acc.x += acc, new_dir.x += 1;
+    if (IsKeyDown(KEY_A)) new_acc.x -= acc, new_dir.x -= 1;
+    if (IsKeyDown(KEY_W)) new_acc.z -= acc, new_dir.y -= 1;
+    if (IsKeyDown(KEY_S)) new_acc.z += acc, new_dir.y += 1;
+    if (IsKeyReleased(KEY_SPACE) && !pdata.is_in_air) apply_vel(player, (Vector3){0,8,0});
 
     apply_acc(player, new_acc);
     apply_gravity(player);
 
-
     if (new_dir.x != 0 || new_dir.y != 0)
         pdata.direction_vec = Vector2Normalize(new_dir);
-
-    pdata.movement_vec = Vector2Normalize(
-        (Vector2){ accelerations[player].x, accelerations[player].z }
-    );
+    pdata.movement_vec = Vector2Normalize((Vector2){ accelerations[player].x, accelerations[player].z });
 }
+
 
 static void update_player_anim()
 {
