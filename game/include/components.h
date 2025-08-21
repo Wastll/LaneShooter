@@ -21,6 +21,8 @@ typedef struct {
 extern Texture2D sprites[MAX_ENTITIES];
 extern Anim animations[MAX_ENTITIES];
 
+// --- Textures usage flags ---
+
 extern bool hasSprite[MAX_ENTITIES];
 extern bool hasAnimation[MAX_ENTITIES];
 
@@ -33,11 +35,21 @@ extern Vector3 max_velocities[MAX_ENTITIES];
 
 extern float frictions[MAX_ENTITIES];
 
+// --- Physics usage flags ---
+
 extern bool hasPosition[MAX_ENTITIES];
 extern bool hasVelocity[MAX_ENTITIES];
 extern bool hasAcceleration[MAX_ENTITIES];
 extern bool hasMaxVelocity[MAX_ENTITIES];
 extern bool hasFriction[MAX_ENTITIES];
 extern bool hasGravity[MAX_ENTITIES];
+
+// --- Init helpers ---
+
+void add_position(Entity e, Vector3 pos);
+void add_velocity(Entity e, Vector3 vel);
+void add_acceleration(Entity e, Vector3 acc);
+void add_friction(Entity e, float fric);
+void add_max_velocity(Entity e, Vector3 max_vel);
 
 #endif

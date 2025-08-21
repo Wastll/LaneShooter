@@ -16,7 +16,7 @@ typedef struct PlayerData {
     bool is_in_air;
     
     Vector2 direction_vec;
-    Vector2 movement_vec;
+    Vector2 acceleration_vec;
 
     Anim anim_idle;
     Anim anim_walk;

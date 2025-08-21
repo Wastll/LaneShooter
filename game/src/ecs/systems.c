@@ -39,7 +39,6 @@ void update_physics(float dt)
 
             float damping = positions[e].y && e!=0 > 0 ? 1.02f : powf(frictions[e], dt * 60.0f);
             velocities[e].x /= damping;
-            // velocities[e].y /= damping;
             velocities[e].z /= damping;
 
             if (hasMaxVelocity[e])
@@ -55,8 +54,6 @@ void update_physics(float dt)
                     velocities[e].x = clamped.x;
                     velocities[e].z = clamped.y;
                 }
-
-                // velocities[e].y = Clamp(velocities[e].y,-max_velocities[e].y,-max_velocities[e].y); // No directional scaling in y direction
             }
             if (hasGravity[e])
             {

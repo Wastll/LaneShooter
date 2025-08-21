@@ -7,6 +7,17 @@
 #include "stdlib.h"
 #include "stdio.h"
 
+#define PLAYER_WALK_ACC 35.0f
+#define PLAYER_RUN_ACC 55.0f
+
+#define PLAYER_WALK_VEL_MAX 1.75f
+#define PLAYER_RUN_VEL_MAX 3.0f
+#define PLAYER_IN_AIR_VEL_MAX 4.0f
+
+#define PLAYER_JUMP_VEL 8.0f
+
+#define ANIM_RUN_FRAME_TIME_RATIO (PLAYER_WALK_VEL_MAX / PLAYER_RUN_VEL_MAX)
+
 static Entity player = 1;
 static PlayerData pdata;
 
@@ -17,40 +28,23 @@ void init_player()
 {
     entity_used[player] = true;
 
-    positions[player] = (Vector3){0, 5, -2.5f};
-    hasPosition[player] = true;
+    add_position(player, (Vector3){0, 5, -2.5f});
+    add_velocity(player, (Vector3){0});
+    add_acceleration(player, (Vector3){0});
+    add_max_velocity(player, (Vector3){0,3,0});
+    add_friction(player, 1.3f);
 
-    velocities[player] = (Vector3){0, 0, 0};
-    hasVelocity[player] = true;
-    
-    accelerations[player] = (Vector3){0, 0, 0};
-    hasAcceleration[player] = true;
-    
-    frictions[player] = 1.3f;
-    hasFriction[player] = true;
-    
-    max_velocities[player] = (Vector3){0,3,0};
-    hasMaxVelocity[player] = true;
-    
     hasGravity[player] = true;
-
     hasAnimation[player] = true;
-
-    pdata.acc_walk = 35.0f;
-    pdata.acc_run = 55.0f;
-
-    pdata.walk_max_vel = 1.75f;
-    pdata.run_max_vel = 3.00f;
-    pdata.in_air_max_vel = 4.00f;
 
     pdata.is_in_air = false;
 
     pdata.direction_vec = (Vector2){0};
-    pdata.movement_vec = (Vector2){0};
+    pdata.acceleration_vec = (Vector2){0};
     
     pdata.anim_walk = (Anim){get_assets()->player_spritesheet_walk, 0, 4, 0.2f, 0, 16, 32, pdata.cycle_index};
     pdata.anim_idle = (Anim){get_assets()->player_spritesheet_idle, 0, 4, 0.35f, 0, 16, 32, pdata.cycle_index};
-    pdata.anim_run = (Anim){get_assets()->player_spritesheet_run, 0, 6, 0.2f * pdata.walk_max_vel / pdata.run_max_vel, 0, 16, 32, pdata.cycle_index};
+    pdata.anim_run = (Anim){get_assets()->player_spritesheet_run, 0, 6, 0.2f * ANIM_RUN_FRAME_TIME_RATIO, 0, 16, 32, pdata.cycle_index};
     pdata.cycle_index = 0;
 }
 
@@ -84,28 +78,28 @@ static void handle_player_input()
 
     pdata.is_in_air = positions[player].y > 0;
 
-    float acc = IsKeyDown(KEY_LEFT_SHIFT) ? pdata.acc_run : pdata.acc_walk;
-    float max_vel = IsKeyDown(KEY_LEFT_SHIFT) ? (pdata.is_in_air ? pdata.in_air_max_vel : pdata.run_max_vel) : pdata.walk_max_vel;
+    float acc = IsKeyDown(KEY_LEFT_SHIFT) ? PLAYER_RUN_ACC : PLAYER_WALK_ACC;
+    float max_vel = IsKeyDown(KEY_LEFT_SHIFT) ? (pdata.is_in_air ? PLAYER_IN_AIR_VEL_MAX: PLAYER_RUN_VEL_MAX) : PLAYER_WALK_VEL_MAX;
     max_velocities[player] = (Vector3){ max_vel, 0, max_vel };
 
     if (IsKeyDown(KEY_D)) new_acc.x += acc, new_dir.x += 1;
     if (IsKeyDown(KEY_A)) new_acc.x -= acc, new_dir.x -= 1;
     if (IsKeyDown(KEY_W)) new_acc.z -= acc, new_dir.y -= 1;
     if (IsKeyDown(KEY_S)) new_acc.z += acc, new_dir.y += 1;
-    if (IsKeyReleased(KEY_SPACE) && !pdata.is_in_air) apply_vel(player, (Vector3){0,8,0});
+    if (IsKeyReleased(KEY_SPACE) && !pdata.is_in_air) apply_vel(player, (Vector3){0,PLAYER_JUMP_VEL,0});
 
     apply_acc(player, new_acc);
     apply_gravity(player);
 
     if (new_dir.x != 0 || new_dir.y != 0)
         pdata.direction_vec = Vector2Normalize(new_dir);
-    pdata.movement_vec = Vector2Normalize((Vector2){ accelerations[player].x, accelerations[player].z });
+    pdata.acceleration_vec = Vector2Normalize((Vector2){ accelerations[player].x, accelerations[player].z });
 }
 
 
 static void update_player_anim()
 {
-    if (pdata.movement_vec.x == 0 && pdata.movement_vec.y == 0)
+    if (pdata.acceleration_vec.x == 0 && pdata.acceleration_vec.y == 0)
         switch_anim(pdata.anim_idle);
     else
         switch_anim(IsKeyDown(KEY_LEFT_SHIFT) ? pdata.anim_run : pdata.anim_walk);
@@ -123,7 +117,9 @@ void draw_player(const Camera3D *cam)
 {
     Vector3 pos = positions[player];
     Vector3 draw_pos = pos;
-    draw_pos.y += 1; // Draw player 1 WU higher so the origin is at the bottom
+
+    int player_height = 2;
+    draw_pos.y += player_height/2; // Draw player 1 WU higher so the origin is at the bottom
 
     if (hasAnimation[player])
     {
