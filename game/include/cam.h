@@ -5,7 +5,7 @@
 
 void init_cam(void);
 
-void update_cam();
+void update_cam(float vel);
 
 Camera3D *get_cam(void);
 

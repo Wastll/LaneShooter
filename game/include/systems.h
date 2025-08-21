@@ -2,7 +2,9 @@
 #define SYSTEMS_H
 
 #include "raylib.h"
+#include "components.h"
 
+void update_animation(Entity e, float dt);
 void update_physics(float dt);
 int apply_gravity(unsigned int e);
 int apply_vel(unsigned int e, Vector3 vel);

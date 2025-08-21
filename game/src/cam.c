@@ -8,42 +8,32 @@
 static Camera3D cam;
 static Entity e_cam = 0;
 
-#define CAM_SPEED 0.7f
-#define CAM_FRIC 1.4f
+#define CAM_FRIC 1.5f
+#define CAM_START_POS (Vector3){0, 4.5f, 3.5f}
+#define CAM_TARGET_POS (Vector3){0, 0.0f, -2.5f}
 
 void init_cam(void)
 {
     entity_used[e_cam] = true;
 
-    // In cube units
-    positions[e_cam] = (Vector3){0, 4.5f, 3.5f};
-    hasPosition[e_cam] = true;
+    add_position(e_cam, CAM_START_POS);
+    add_velocity(e_cam, (Vector3){0});
+    add_acceleration(e_cam, (Vector3){0});
+    add_friction(e_cam, CAM_FRIC);
 
-    velocities[e_cam] = (Vector3){0, 0, 0};
-    hasVelocity[e_cam] = true;
-
-    accelerations[e_cam] = (Vector3){0, 0, 0};
-    hasAcceleration[e_cam] = true;
-
-    frictions[e_cam] = CAM_FRIC;
-    hasFriction[e_cam] = true;
-
+    // Initialize camera
     cam = (Camera3D){0};
     cam.position = positions[e_cam];
-    cam.target = (Vector3){0, 0.0f, -2.5f};
+    cam.target = CAM_TARGET_POS;
     cam.up = (Vector3){0, 1, 0};
     cam.fovy = 60.0f;
 
     cam.projection = CAMERA_PERSPECTIVE;
 }
 
-void update_cam()
+void update_cam(float vel)
 {
-
-    if (IsKeyDown(KEY_D))
-        apply_vel(e_cam, (Vector3){CAM_SPEED, 0, 0});
-    if (IsKeyDown(KEY_A))
-        apply_vel(e_cam, (Vector3){-CAM_SPEED, 0, 0});
+    apply_vel(e_cam, (Vector3){vel, 0, 0});
 
     cam.position = positions[e_cam];
 

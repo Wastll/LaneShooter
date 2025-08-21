@@ -6,7 +6,23 @@
 
 #include <stdbool.h>
 
-#define GRAVITY_ACCELERATION -9.81f
+#define GRAVITY_ACCELERATION 3*-9.81f
+
+void update_animation(Entity e, float dt)
+{
+    if (!hasAnimation[e])
+        return;
+
+    Anim *anim = &animations[e];
+    anim->timer += dt;
+    if (anim->timer >= anim->frameTime)
+    {
+        anim->frame++;
+        if (anim->frame >= anim->maxFrames)
+            anim->frame = 0;
+        anim->timer = 0;
+    }
+}
 
 static bool hasPhysicsComponents(unsigned int entity)
 {
@@ -21,23 +37,40 @@ void update_physics(float dt)
         {
             velocities[e] = Vector3Add(velocities[e], Vector3Scale(accelerations[e], dt));
 
-            
-            float damping = powf(frictions[e], dt * 60.0f);
+            float damping = positions[e].y && e!=0 > 0 ? 1.02f : powf(frictions[e], dt * 60.0f);
             velocities[e].x /= damping;
-            velocities[e].y /= damping;
             velocities[e].z /= damping;
-            
+
             if (hasMaxVelocity[e])
             {
-                velocities[e].x = Clamp(velocities[e].x, -max_velocities[e].x, max_velocities[e].x);
-                velocities[e].y = Clamp(velocities[e].y, -max_velocities[e].y, max_velocities[e].y);
-                velocities[e].z = Clamp(velocities[e].z, -max_velocities[e].z, max_velocities[e].z);
+                // Directional scaling in xz-direction
+                Vector2 vel_xz = {velocities[e].x, velocities[e].z};
+                float speed = Vector2Length(vel_xz);
+                float max_speed = fmaxf(max_velocities[e].x, max_velocities[e].z); // Use max val for now, may change later
+
+                if (speed > max_speed && speed > 0.0f)
+                {
+                    Vector2 clamped = Vector2Scale(vel_xz, max_speed / speed);
+                    velocities[e].x = clamped.x;
+                    velocities[e].z = clamped.y;
+                }
             }
-            
+            if (hasGravity[e])
+            {
+                if (positions[e].y > 0)
+                    apply_gravity(e);
+                else
+                {
+                    if(positions[e].y<0) positions[e].y = 0;
+                    if(velocities[e].y<0)velocities[e].y = 0;
+                    
+                }
+            }
             positions[e] = Vector3Add(positions[e], Vector3Scale(velocities[e], dt));
-            
-            printf("%d : %f\n", e, velocities[e].x);
         }
+
+        if (hasAnimation[e])
+            update_animation(e, dt);
     }
 }
 
