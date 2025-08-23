@@ -10,3 +10,5 @@ A Raylib C semi-3D pixel art shooter game
 ```bash
 make
 ./build/LaneShooter
+
+[![BuyMeACoffee](https://raw.githubusercontent.com/pachadotdev/buymeacoffee-badges/main/bmc-yellow.svg)](https://www.buymeacoffee.com/Wastll)
