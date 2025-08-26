@@ -4,6 +4,7 @@
 
 #include "ecs.h"
 #include "raylib.h"
+#include "stdbool.h"
 
 // --- Textures ---
 
@@ -32,6 +33,7 @@ extern Vector3 positions[MAX_ENTITIES];
 extern Vector3 velocities[MAX_ENTITIES];
 extern Vector3 accelerations[MAX_ENTITIES];
 extern Vector3 max_velocities[MAX_ENTITIES];
+extern BoundingBox bounding_boxes[MAX_ENTITIES];
 
 extern float frictions[MAX_ENTITIES];
 
@@ -43,6 +45,8 @@ extern bool hasAcceleration[MAX_ENTITIES];
 extern bool hasMaxVelocity[MAX_ENTITIES];
 extern bool hasFriction[MAX_ENTITIES];
 extern bool hasGravity[MAX_ENTITIES];
+extern bool hasCollision[MAX_ENTITIES];
+extern bool hasBoundingBox[MAX_ENTITIES];
 
 // --- Init helpers ---
 
@@ -51,5 +55,6 @@ void add_velocity(Entity e, Vector3 vel);
 void add_acceleration(Entity e, Vector3 acc);
 void add_friction(Entity e, float fric);
 void add_max_velocity(Entity e, Vector3 max_vel);
+void add_bounding_box(Entity e, BoundingBox bb);
 
 #endif

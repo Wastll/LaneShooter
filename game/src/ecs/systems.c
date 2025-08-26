@@ -6,7 +6,33 @@
 
 #include <stdbool.h>
 
-#define GRAVITY_ACCELERATION 3*-9.81f
+#define GRAVITY_ACCELERATION 3 * -9.81f
+
+static bool hasPhysicsComponents(unsigned int entity)
+{
+    return entity_used[entity] && hasAcceleration[entity] && hasVelocity[entity] && hasPosition[entity] && hasFriction[entity];
+}
+
+static BoundingBox get_bounding_box(Entity e)
+{
+    BoundingBox box = bounding_boxes[e];
+
+    box.min = Vector3Add(box.min, positions[e]);
+    box.max = Vector3Add(box.max, positions[e]);
+
+    return box;
+}
+
+static BoundingBox get_bounding_box_translate(Entity e, Vector3 translation)
+{
+    BoundingBox box = bounding_boxes[e];
+    Vector3 trans_pos = Vector3Add(positions[e],translation);
+
+    box.min = Vector3Add(box.min, trans_pos);
+    box.max = Vector3Add(box.max, trans_pos);
+
+    return box;
+}
 
 void update_animation(Entity e, float dt)
 {
@@ -24,11 +50,6 @@ void update_animation(Entity e, float dt)
     }
 }
 
-static bool hasPhysicsComponents(unsigned int entity)
-{
-    return entity_used[entity] && hasAcceleration[entity] && hasVelocity[entity] && hasPosition[entity] && hasFriction[entity];
-}
-
 void update_physics(float dt)
 {
     for (Entity e = 0; e < MAX_ENTITIES; e++)
@@ -37,7 +58,7 @@ void update_physics(float dt)
         {
             velocities[e] = Vector3Add(velocities[e], Vector3Scale(accelerations[e], dt));
 
-            float damping = positions[e].y && e!=0 > 0 ? 1.02f : powf(frictions[e], dt * 60.0f);
+            float damping = positions[e].y && e != 0 > 0 ? 1.02f : powf(frictions[e], dt * 60.0f);
             velocities[e].x /= damping;
             velocities[e].z /= damping;
 
@@ -55,17 +76,32 @@ void update_physics(float dt)
                     velocities[e].z = clamped.y;
                 }
             }
-            if (hasGravity[e])
+
+            // Collision
+            if (hasCollision[e])
             {
-                if (positions[e].y > 0)
-                    apply_gravity(e);
-                else
+                BoundingBox boxE = get_bounding_box(e);
+
+                for (Entity o = 0; o < MAX_ENTITIES; o++)
                 {
-                    if(positions[e].y<0) positions[e].y = 0;
-                    if(velocities[e].y<0)velocities[e].y = 0;
-                    
+                    if (o == e) continue;
+                    if (!hasCollision[o]) continue;
+
+                    BoundingBox boxO = get_bounding_box(o);
+
+                    if (CheckCollisionBoxes(boxE, boxO))
+                    {
+                        if (velocities[e].y < 0)
+                        {
+                            velocities[e].y = 0;
+                            positions[e].y = boxO.max.y;    
+                        }
+
+                        // TODO: handle x/z collisions
+                    }
                 }
             }
+
             positions[e] = Vector3Add(positions[e], Vector3Scale(velocities[e], dt));
         }
 

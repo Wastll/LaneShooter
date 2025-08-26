@@ -6,6 +6,7 @@
 #include "raymath.h"
 #include "stdlib.h"
 #include "stdio.h"
+#include "utils.h"
 
 #define PLAYER_WALK_ACC 35.0f
 #define PLAYER_RUN_ACC 55.0f
@@ -33,9 +34,13 @@ void init_player()
     add_acceleration(player, (Vector3){0});
     add_max_velocity(player, (Vector3){0,3,0});
     add_friction(player, 1.3f);
+    hasBoundingBox[player] = true;
+    bounding_boxes[player].min = (Vector3){-0.25,0,-0.25};
+    bounding_boxes[player].max = (Vector3){0.25,1.3,0.25};
 
     hasGravity[player] = true;
     hasAnimation[player] = true;
+    hasCollision[player] = true;
 
     pdata.is_in_air = false;
 
@@ -63,6 +68,7 @@ static void switch_anim(Anim anim)
     if (animations[player].tex.id != anim.tex.id)
         animations[player] = anim;
 }
+
 
 void update_player()
 {
@@ -129,11 +135,11 @@ void draw_player(const Camera3D *cam)
             .y = pdata.cycle_index * anim->frameHeight,
             .width = anim->frameWidth,
             .height = anim->frameHeight};
-
+        
         DrawBillboardRec(*cam, anim->tex, src,
                          draw_pos, (Vector2){1, 2}, // (-)1 WU wide, 2 WU tall
                          WHITE);
     }
-
+    DrawBoundingBoxEx(player,YELLOW);
     DrawSphere(positions[player], 0.05f, PINK); // Player pos marker
 }

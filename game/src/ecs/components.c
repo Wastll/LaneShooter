@@ -16,8 +16,10 @@ Vector3 positions[MAX_ENTITIES] = {0};
 Vector3 velocities[MAX_ENTITIES] = {0};
 Vector3 accelerations[MAX_ENTITIES] = {0};
 Vector3 max_velocities[MAX_ENTITIES] = {0};
+BoundingBox bounding_boxes[MAX_ENTITIES] = {0};
 
 float frictions[MAX_ENTITIES] = {0};
+
 
 // --- Physics usage flages ---
 
@@ -27,6 +29,8 @@ bool hasAcceleration[MAX_ENTITIES] = {false};
 bool hasFriction[MAX_ENTITIES] = {false};
 bool hasMaxVelocity[MAX_ENTITIES] = {false};
 bool hasGravity[MAX_ENTITIES] = {false};
+bool hasCollision[MAX_ENTITIES] = {false};
+bool hasBoundingBox[MAX_ENTITIES] = {false};
 
 // --- Init helpers ---
 
@@ -58,4 +62,9 @@ void add_friction(Entity e, float friction)
 {
     frictions[e] = friction;
     hasFriction[e] = true;
+}
+
+void add_bounding_box(Entity e, BoundingBox bb){
+    bounding_boxes[e] = bb;
+    hasBoundingBox[e] = true;
 }

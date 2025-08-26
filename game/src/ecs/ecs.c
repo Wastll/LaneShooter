@@ -4,7 +4,8 @@
 bool entity_used[MAX_ENTITIES] = { false };
 
  Entity create_entity(void) {
-    for (Entity i = 0; i < MAX_ENTITIES; i++) {
+    // Reserve enitiy 0 for cam, entity 1 for player
+    for (Entity i = 2; i < MAX_ENTITIES; i++) {
         if (!entity_used[i]) {
             entity_used[i] = true;
             return i;

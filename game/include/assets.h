@@ -5,6 +5,9 @@
 #define ASSETS_H
 
 typedef struct {
+    Texture2D missing_texture;
+    Texture2D missing_uv;
+
     Texture2D skybox;
     Texture2D texture_meadow;
     
@@ -14,6 +17,7 @@ typedef struct {
     Texture2D player_spritesheet_run;
 
     Model cube;
+    Model cube_meadow;
 
 } GameAssets;
 

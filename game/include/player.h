@@ -24,7 +24,6 @@ typedef struct PlayerData {
     int cycle_index;
 } PlayerData;
 
-
 void init_player(void);
 void update_player(void);
 void draw_player(const Camera3D* cam);

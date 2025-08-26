@@ -4,13 +4,14 @@
 #include "components.h"
 #include "stdio.h"
 #include "raymath.h"
+#include "world.h"
 
 static Camera3D cam;
 static Entity e_cam = 0;
 
 #define CAM_FRIC 1.5f
 #define CAM_START_POS (Vector3){0, 4.5f, 3.5f}
-#define CAM_TARGET_POS (Vector3){0, 0.0f, -2.5f}
+#define CAM_TARGET_POS (Vector3){0, 0.0f, -WORLD_LANES_H/2.0f}
 
 void init_cam(void)
 {
