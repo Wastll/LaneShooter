@@ -1,6 +1,7 @@
 // world.c
 #include "world.h"
 #include "assets.h"
+#include "world_props.h"
 #include "raymath.h"
 
 Color lane_depth_tint[WORLD_LANES_H];
@@ -15,7 +16,7 @@ static void init_lanes(void)
     hasBoundingBox[e_lanes]=true;
     bounding_boxes[e_lanes].min = (Vector3){0,-1,-WORLD_LANES_H};
     bounding_boxes[e_lanes].max = (Vector3){WORLD_LANES_W,0,0};
-    hasCollision[e_lanes] = true;
+    add_collision_state(e_lanes);
 }
 
 static void update_lanes(void) {}
@@ -41,6 +42,7 @@ static void draw_lanes(void)
 
 void init_world(void)
 {
+    init_props();
     init_lanes();
     int lane_depth_darkness_lvl = 18;
     for (int i = 0; i < WORLD_LANES_H; i++)
@@ -49,11 +51,13 @@ void init_world(void)
 
 void update_world(float dt)
 {
+    update_props();
 }
 
 void draw_world()
 {
     draw_lanes();
+    draw_props();
 }
 
 // Background as part of the world for now

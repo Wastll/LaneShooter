@@ -1,11 +1,15 @@
 #include "components.h"
 
+char* names[MAX_ENTITIES] = {""};
+
 // --- Textures ---
 
 Anim animations[MAX_ENTITIES] = {0};
 Texture2D sprites[MAX_ENTITIES] = {0};
 
-// --- Textures usgage flags ---
+bool hasName[MAX_ENTITIES] = {false};
+
+// --- Textures ---
 
 bool hasAnimation[MAX_ENTITIES] = {false};
 bool hasSprite[MAX_ENTITIES] = {false};
@@ -17,6 +21,7 @@ Vector3 velocities[MAX_ENTITIES] = {0};
 Vector3 accelerations[MAX_ENTITIES] = {0};
 Vector3 max_velocities[MAX_ENTITIES] = {0};
 BoundingBox bounding_boxes[MAX_ENTITIES] = {0};
+Vector3 collision_states[MAX_ENTITIES] = {0};
 
 float frictions[MAX_ENTITIES] = {0};
 
@@ -31,6 +36,7 @@ bool hasMaxVelocity[MAX_ENTITIES] = {false};
 bool hasGravity[MAX_ENTITIES] = {false};
 bool hasCollision[MAX_ENTITIES] = {false};
 bool hasBoundingBox[MAX_ENTITIES] = {false};
+bool hasCollisionState[MAX_ENTITIES] = {false};
 
 // --- Init helpers ---
 
@@ -67,4 +73,14 @@ void add_friction(Entity e, float friction)
 void add_bounding_box(Entity e, BoundingBox bb){
     bounding_boxes[e] = bb;
     hasBoundingBox[e] = true;
+}
+
+void add_collision_state(Entity e){
+    hasCollisionState[e]=true;
+    collision_states[e]=(Vector3){0,0,0};
+}
+
+void add_name(Entity e,char* name){
+    hasName[e]=true;
+    names[e]=name;
 }

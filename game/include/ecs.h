@@ -9,6 +9,7 @@ typedef unsigned int Entity;
 extern bool entity_used[MAX_ENTITIES];
 
 Entity create_entity(void);
+Entity create_entity_name(char* name);
 
 void destroy_entity(Entity e);
 

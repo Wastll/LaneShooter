@@ -42,6 +42,9 @@ void init_player()
     hasAnimation[player] = true;
     hasCollision[player] = true;
 
+    hasCollisionState[player] = true;
+    add_collision_state(player);
+
     pdata.is_in_air = false;
 
     pdata.direction_vec = (Vector2){0};
@@ -82,7 +85,7 @@ static void handle_player_input()
     Vector2 new_dir = {0};
     Vector3 new_acc = {0};
 
-    pdata.is_in_air = positions[player].y > 0;
+    pdata.is_in_air = collision_states[player].y>-1;
 
     float acc = IsKeyDown(KEY_LEFT_SHIFT) ? PLAYER_RUN_ACC : PLAYER_WALK_ACC;
     float max_vel = IsKeyDown(KEY_LEFT_SHIFT) ? (pdata.is_in_air ? PLAYER_IN_AIR_VEL_MAX: PLAYER_RUN_VEL_MAX) : PLAYER_WALK_VEL_MAX;

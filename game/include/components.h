@@ -6,6 +6,8 @@
 #include "raylib.h"
 #include "stdbool.h"
 
+extern char* names[MAX_ENTITIES];
+
 // --- Textures ---
 
 typedef struct {
@@ -22,7 +24,11 @@ typedef struct {
 extern Texture2D sprites[MAX_ENTITIES];
 extern Anim animations[MAX_ENTITIES];
 
-// --- Textures usage flags ---
+// --- Usage flags ---
+
+extern bool hasName[MAX_ENTITIES];
+
+// --- Textures ---
 
 extern bool hasSprite[MAX_ENTITIES];
 extern bool hasAnimation[MAX_ENTITIES];
@@ -36,8 +42,9 @@ extern Vector3 max_velocities[MAX_ENTITIES];
 extern BoundingBox bounding_boxes[MAX_ENTITIES];
 
 extern float frictions[MAX_ENTITIES];
+extern Vector3 collision_states[MAX_ENTITIES]; 
 
-// --- Physics usage flags ---
+// --- Physics---
 
 extern bool hasPosition[MAX_ENTITIES];
 extern bool hasVelocity[MAX_ENTITIES];
@@ -47,14 +54,17 @@ extern bool hasFriction[MAX_ENTITIES];
 extern bool hasGravity[MAX_ENTITIES];
 extern bool hasCollision[MAX_ENTITIES];
 extern bool hasBoundingBox[MAX_ENTITIES];
+extern bool hasCollisionState[MAX_ENTITIES];
 
 // --- Init helpers ---
 
+void add_name(Entity e, char* name);
 void add_position(Entity e, Vector3 pos);
 void add_velocity(Entity e, Vector3 vel);
 void add_acceleration(Entity e, Vector3 acc);
 void add_friction(Entity e, float fric);
 void add_max_velocity(Entity e, Vector3 max_vel);
 void add_bounding_box(Entity e, BoundingBox bb);
+void add_collision_state(Entity e);
 
 #endif

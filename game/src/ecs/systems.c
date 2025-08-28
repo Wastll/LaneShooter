@@ -26,7 +26,7 @@ static BoundingBox get_bounding_box(Entity e)
 static BoundingBox get_bounding_box_translate(Entity e, Vector3 translation)
 {
     BoundingBox box = bounding_boxes[e];
-    Vector3 trans_pos = Vector3Add(positions[e],translation);
+    Vector3 trans_pos = Vector3Add(positions[e], translation);
 
     box.min = Vector3Add(box.min, trans_pos);
     box.max = Vector3Add(box.max, trans_pos);
@@ -58,7 +58,7 @@ void update_physics(float dt)
         {
             velocities[e] = Vector3Add(velocities[e], Vector3Scale(accelerations[e], dt));
 
-            float damping = positions[e].y && e != 0 > 0 ? 1.02f : powf(frictions[e], dt * 60.0f);
+            float damping = (hasCollisionState[e] && collision_states[e].y > -1 && e > 0) ? 1.02f : powf(frictions[e], dt * 60.0f);
             velocities[e].x /= damping;
             velocities[e].z /= damping;
 
@@ -78,23 +78,33 @@ void update_physics(float dt)
             }
 
             // Collision
-            if (hasCollision[e])
+            if (hasCollisionState[e])
             {
                 BoundingBox boxE = get_bounding_box(e);
+                collision_states[e] = (Vector3){0, 0, 0};
 
                 for (Entity o = 0; o < MAX_ENTITIES; o++)
                 {
-                    if (o == e) continue;
-                    if (!hasCollision[o]) continue;
+                    if (o == e)continue;
 
                     BoundingBox boxO = get_bounding_box(o);
 
                     if (CheckCollisionBoxes(boxE, boxO))
                     {
-                        if (velocities[e].y < 0)
+                // collision_states[e] = (Vector3){0, 0, 0};
+                // collision_states[o] = (Vector3){0, 0, 0};
+                        printf("%d, %d\n",e,o);
+                        if (velocities[e].y > 0 && boxE.max.y<positions[o].y )
                         {
+                            positions[e].y = boxO.min.y -(boxE.max.y-boxE.min.y)-0.1f;
+                            collision_states[e].y = 1;
                             velocities[e].y = 0;
-                            positions[e].y = boxO.max.y;    
+                        }
+                        if (velocities[e].y < 0 && positions[e].y<=(boxO.max.y-boxO.min.y) && positions[e].y!=boxO.min.y)
+                        {
+                            positions[e].y = boxO.max.y;
+                            collision_states[e].y = -1;
+                            velocities[e].y = 0;
                         }
 
                         // TODO: handle x/z collisions
