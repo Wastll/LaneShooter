@@ -4,6 +4,7 @@
 #include "raymath.h"
 #include "stdio.h"
 
+#include "utils.h"
 #include <stdbool.h>
 
 #define GRAVITY_ACCELERATION 3 * -9.81f
@@ -61,7 +62,6 @@ void update_physics(float dt)
             float damping = (hasCollisionState[e] && collision_states[e].y > -1 && e > 0) ? 1.02f : powf(frictions[e], dt * 60.0f);
             velocities[e].x /= damping;
             velocities[e].z /= damping;
-
             if (hasMaxVelocity[e])
             {
                 // Directional scaling in xz-direction
@@ -81,33 +81,121 @@ void update_physics(float dt)
             if (hasCollisionState[e])
             {
                 BoundingBox boxE = get_bounding_box(e);
-                collision_states[e] = (Vector3){0, 0, 0};
+                if (collision_states[e].x != 0)
+                    collision_states[e].x = 0;
+                if (collision_states[e].y != 0)
+                    collision_states[e].y = 0;
+                if (collision_states[e].z != 0)
+                    collision_states[e].z = 0;
 
                 for (Entity o = 0; o < MAX_ENTITIES; o++)
                 {
-                    if (o == e)continue;
+                    if (o == e)
+                        continue;
 
                     BoundingBox boxO = get_bounding_box(o);
 
                     if (CheckCollisionBoxes(boxE, boxO))
                     {
-                // collision_states[e] = (Vector3){0, 0, 0};
-                // collision_states[o] = (Vector3){0, 0, 0};
-                        printf("%d, %d\n",e,o);
-                        if (velocities[e].y > 0 && boxE.max.y<positions[o].y )
-                        {
-                            positions[e].y = boxO.min.y -(boxE.max.y-boxE.min.y)-0.1f;
-                            collision_states[e].y = 1;
-                            velocities[e].y = 0;
-                        }
-                        if (velocities[e].y < 0 && positions[e].y<=(boxO.max.y-boxO.min.y) && positions[e].y!=boxO.min.y)
-                        {
-                            positions[e].y = boxO.max.y;
-                            collision_states[e].y = -1;
-                            velocities[e].y = 0;
-                        }
+                        // collision_states[e] = (Vector3){0, 0, 0};
+                        // collision_states[o] = (Vector3){0, 0, 0};
 
-                        // TODO: handle x/z collisions
+                        // Foot coll
+                        // if (boxE.min.y + (boxE.max.y - boxE.min.y) > boxO.min.y && !(boxE.min.y > boxO.min.y + (boxO.max.y - boxO.min.y)))
+                        // {
+
+                        //     // if(collision_states[e].x!=0&&collision_states[e].z!=0) ;
+                        //     positions[e].y = boxO.min.y + (boxO.max.y - boxO.min.y);
+
+                        //     collision_states[e].y = -1;
+                        // }
+
+                        // // Head coll
+                        // if (boxE.min.y > boxO.min.y + (boxO.max.y - boxO.min.y) && !(boxE.min.y + (boxE.max.y - boxE.min.y) > boxO.min.y))
+                        // {
+                        //     positions[e].y = boxO.min.y - (boxO.max.y - boxO.min.y);
+                        //     collision_states[e].y = 1;
+                        // }
+
+
+
+                        /*
+                        Check algo:
+                        X:
+                            if player y on between block
+                                if bb player Z is "inbetween" block
+                                && if bb player X is NOT "inbetween" block / not elligable for Z colliding
+                                    if bb player right x collides with block bb left
+                                    && if player on left side of block
+
+                                    if bb player left x collides with block bb right
+                                    && if player on right side of block
+
+                            if player x & z between block
+                                if player
+                                */
+                               
+                               if (
+                                   boxE.max.x >= boxO.min.x && boxE.max.z >= boxO.min.z &&
+                                   boxE.min.x <= boxO.max.x && boxE.min.z <= boxO.max.z )
+                                   {
+                                       // if (boxE.max.z >= boxO.min.z && boxE.min.z <= boxO.max.z && !(positions[e].x >= boxO.min.x && positions[e].x <= boxO.max.x))
+                                       // {
+                                        
+                                       if (boxE.min.y <= boxO.max.y)
+                                        {
+                                            positions[e].y = boxO.max.y;
+                                            collision_states[e].y = -1;
+                                            // velocities[e].y = 0;                                            
+                                        }
+                                        // if (boxE.min.x < boxO.max.x &&
+                                        //     positions[e].x > boxO.min.x + (boxO.max.x - boxO.min.x) / 2)
+                                        // {
+                                            //     positions[e].x = boxO.max.x + (boxE.max.x - boxE.min.x) / 2;
+                                            //     collision_states[e].x = -1;
+                                            // }
+                                            // }
+                                        }
+                                        if (sign(velocities[e].y) == sign(collision_states[e].y))
+                                            velocities[e].y = 0;
+
+
+                        if (o != 4 && boxE.min.y >= boxO.min.y && boxE.min.y <= boxO.max.y) // remove o != 4
+                        {
+                            if (boxE.max.z >= boxO.min.z && boxE.min.z <= boxO.max.z && !(positions[e].x >= boxO.min.x && positions[e].x <= boxO.max.x))
+                            {
+
+                                if (boxO.min.x < boxE.max.x &&
+                                    positions[e].x < boxO.min.x + (boxO.max.x - boxO.min.x) / 2)
+                                {
+                                    positions[e].x = boxO.min.x - (boxE.max.x - boxE.min.x) / 2;
+                                    collision_states[e].x = 1;
+                                }
+                                if (boxE.min.x < boxO.max.x &&
+                                    positions[e].x > boxO.min.x + (boxO.max.x - boxO.min.x) / 2)
+                                {
+                                    positions[e].x = boxO.max.x + (boxE.max.x - boxE.min.x) / 2;
+                                    collision_states[e].x = -1;
+                                }
+                            }
+
+                            if (boxE.max.x >= boxO.min.x && boxE.min.x <= boxO.max.x && !(positions[e].z >= boxO.min.z && positions[e].z <= boxO.max.z))
+                            {
+
+                                if (boxO.min.z < positions[e].z + (boxE.max.z - boxE.min.z) / 2 &&
+                                    positions[e].z < boxO.min.z + (boxO.max.z - boxO.min.z) / 2)
+                                {
+                                    positions[e].z = boxO.min.z - (boxE.max.z - boxE.min.z) / 2;
+                                    collision_states[e].z = 1;
+                                }
+                                if (positions[e].z - (boxE.max.z - boxE.min.z) / 2 < boxO.max.z &&
+                                    positions[e].z > boxO.min.z + (boxO.max.z - boxO.min.z) / 2)
+                                {
+                                    positions[e].z = boxO.max.z + (boxE.max.z - boxE.min.z) / 2;
+                                    collision_states[e].z = -1;
+                                }
+                            }
+                        }
                     }
                 }
             }

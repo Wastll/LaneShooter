@@ -7,5 +7,6 @@
 #include "components.h"
 
 void DrawBoundingBoxEx(Entity e, Color color);
+int sign(float num);
 
 #endif

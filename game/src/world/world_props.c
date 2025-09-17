@@ -24,7 +24,7 @@ void init_props(void)
         props[i].exists = false;
 
     p_0 = create_entity();
-    add_position(p_0, (Vector3){3, 1, -2.f});
+    add_position(p_0, (Vector3){4, 3, -2.f});
     hasBoundingBox[p_0] = true;
     bounding_boxes[p_0].min = (Vector3){0,-1,-1};
     bounding_boxes[p_0].max = Vector3Add(bounding_boxes[p_0].min,(Vector3){1,1,1});
@@ -34,7 +34,7 @@ void init_props(void)
     props[0] = init_prop(true, p_0, &get_assets()->cube_meadow, (Vector2){3, 2.f}, (Vector3){1, 1, 1}, false, 1.f);
 
     p_1 = create_entity();
-    add_position(p_1, (Vector3){2, 3, -1.f});
+    add_position(p_1, (Vector3){2, 1, -2.f});
     hasBoundingBox[p_1] = true;
     bounding_boxes[p_1].min = (Vector3){0,-1,-1};
     bounding_boxes[p_1].max = Vector3Add(bounding_boxes[p_1].min,(Vector3){1,1,1});

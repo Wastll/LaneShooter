@@ -29,7 +29,7 @@ void init_player()
 {
     entity_used[player] = true;
 
-    add_position(player, (Vector3){0, 5, -2.5f});
+    add_position(player, (Vector3){1.5, 3, -2.5f});
     add_velocity(player, (Vector3){0});
     add_acceleration(player, (Vector3){0});
     add_max_velocity(player, (Vector3){0,3,0});
@@ -38,7 +38,7 @@ void init_player()
     bounding_boxes[player].min = (Vector3){-0.25,0,-0.25};
     bounding_boxes[player].max = (Vector3){0.25,1.3,0.25};
 
-    hasGravity[player] = true;
+    // hasGravity[player] = true;
     hasAnimation[player] = true;
     hasCollision[player] = true;
 

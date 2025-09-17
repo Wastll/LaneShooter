@@ -21,3 +21,9 @@ void DrawBoundingBoxEx(Entity e, Color color){
 
     DrawCubeWires(center, size.x, size.y, size.z, color);
 }
+
+int sign(float num){
+if (num > 0) return 1;
+if (num < 0) return -1;
+return 0;
+}
