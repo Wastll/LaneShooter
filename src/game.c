@@ -7,7 +7,6 @@
 #include "world.h"
 #include "cam.h"
 #include "rlgl.h"
-#include <GL/gl.h>
 
 static RenderTexture2D target;
 static Entity e_cam = 0;
@@ -59,7 +58,7 @@ void draw_upscale()
     DrawTexturePro(
         target.texture,
         (Rectangle){0, 0, target.texture.width, -target.texture.height},
-        (Rectangle){0, 0, GetScreenWidth(), GetScreenHeight()},
+        (Rectangle){0, 0, 1920, 1080},
         (Vector2){0, 0}, 0.0f, WHITE);
 
     // --- 3D ---
@@ -67,9 +66,9 @@ void draw_upscale()
 
     //Redraw lanes in upscaled version to get z-ordering
     rlEnableDepthTest();
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    glColorMask(0, 0, 0, 0);
     draw_world();
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glColorMask(1, 1, 1, 1);
 
     draw_player(get_cam());
     DrawSphere((Vector3){0, 0, 0}, 0.05f, RED); // Origin marker

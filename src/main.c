@@ -2,7 +2,7 @@
 #include "game.h"
 #include "assets.h"
 
-#define FB_RATIO 5 // either 5 for less pixel clutter, 6 for pixelated look. All other values are too blocky or too "smooth"
+#define FB_RATIO 4
 
 #define screenWidth 1920
 #define screenHeight 1080
@@ -13,12 +13,13 @@
 
 int main(void)
 {
+    SetConfigFlags(FLAG_WINDOW_HIGHDPI);
     InitWindow(screenWidth, screenHeight, "Lane Shooter");
-    SetTargetFPS(60);
-    ToggleFullscreen();
-    SetWindowMonitor(2);
-
     init_game(renderWidth,renderHeight);
+    SetWindowMonitor(2);
+    ToggleFullscreen();
+    SetTargetFPS(60);
+
 
     while (!WindowShouldClose())
     {
