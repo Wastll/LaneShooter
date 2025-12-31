@@ -6,6 +6,7 @@
 
 #include "utils.h"
 #include <stdbool.h>
+#include <math.h>
 
 #define GRAVITY_ACCELERATION 3 * -9.81f
 
@@ -77,10 +78,13 @@ void update_physics(float dt)
                 }
             }
 
+            positions[e] = Vector3Add(positions[e], Vector3Scale(velocities[e], dt));
+
             // Collision
             if (hasCollisionState[e])
             {
                 BoundingBox boxE = get_bounding_box(e);
+                
                 if (collision_states[e].x != 0)
                     collision_states[e].x = 0;
                 if (collision_states[e].y != 0)
@@ -97,110 +101,59 @@ void update_physics(float dt)
 
                     if (CheckCollisionBoxes(boxE, boxO))
                     {
-                        // collision_states[e] = (Vector3){0, 0, 0};
-                        // collision_states[o] = (Vector3){0, 0, 0};
 
-                        // Foot coll
-                        // if (boxE.min.y + (boxE.max.y - boxE.min.y) > boxO.min.y && !(boxE.min.y > boxO.min.y + (boxO.max.y - boxO.min.y)))
-                        // {
+                        float overlapX = fmin(boxE.max.x, boxO.max.x) - fmax(boxE.min.x, boxO.min.x);
+                        float overlapY = fmin(boxE.max.y, boxO.max.y) - fmax(boxE.min.y, boxO.min.y);
+                        float overlapZ = fmin(boxE.max.z, boxO.max.z) - fmax(boxE.min.z, boxO.min.z);
 
-                        //     // if(collision_states[e].x!=0&&collision_states[e].z!=0) ;
-                        //     positions[e].y = boxO.min.y + (boxO.max.y - boxO.min.y);
+                        if (overlapX <= 0 || overlapY <= 0 || overlapZ <= 0)
+                            continue;
 
-                        //     collision_states[e].y = -1;
-                        // }
+                        Vector3 centerE = Vector3Scale(Vector3Add(boxE.min, boxE.max), 0.5f);
+                        Vector3 centerO = Vector3Scale(Vector3Add(boxO.min, boxO.max), 0.5f);
 
-                        // // Head coll
-                        // if (boxE.min.y > boxO.min.y + (boxO.max.y - boxO.min.y) && !(boxE.min.y + (boxE.max.y - boxE.min.y) > boxO.min.y))
-                        // {
-                        //     positions[e].y = boxO.min.y - (boxO.max.y - boxO.min.y);
-                        //     collision_states[e].y = 1;
-                        // }
+                        Vector3 normal = {0, 0, 0};
 
-
-
-                        /*
-                        Check algo:
-                        X:
-                            if player y on between block
-                                if bb player Z is "inbetween" block
-                                && if bb player X is NOT "inbetween" block / not elligable for Z colliding
-                                    if bb player right x collides with block bb left
-                                    && if player on left side of block
-
-                                    if bb player left x collides with block bb right
-                                    && if player on right side of block
-
-                            if player x & z between block
-                                if player
-                                */
-                               
-                               if (
-                                   boxE.max.x >= boxO.min.x && boxE.max.z >= boxO.min.z &&
-                                   boxE.min.x <= boxO.max.x && boxE.min.z <= boxO.max.z )
-                                   {
-                                       // if (boxE.max.z >= boxO.min.z && boxE.min.z <= boxO.max.z && !(positions[e].x >= boxO.min.x && positions[e].x <= boxO.max.x))
-                                       // {
-                                        
-                                       if (boxE.min.y <= boxO.max.y)
-                                        {
-                                            positions[e].y = boxO.max.y;
-                                            collision_states[e].y = -1;
-                                            // velocities[e].y = 0;                                            
-                                        }
-                                        // if (boxE.min.x < boxO.max.x &&
-                                        //     positions[e].x > boxO.min.x + (boxO.max.x - boxO.min.x) / 2)
-                                        // {
-                                            //     positions[e].x = boxO.max.x + (boxE.max.x - boxE.min.x) / 2;
-                                            //     collision_states[e].x = -1;
-                                            // }
-                                            // }
-                                        }
-                                        if (sign(velocities[e].y) == sign(collision_states[e].y))
-                                            velocities[e].y = 0;
-
-
-                        if (o != 4 && boxE.min.y >= boxO.min.y && boxE.min.y <= boxO.max.y) // remove o != 4
+                        if (overlapY <= overlapX && overlapY <= overlapZ)
                         {
-                            if (boxE.max.z >= boxO.min.z && boxE.min.z <= boxO.max.z && !(positions[e].x >= boxO.min.x && positions[e].x <= boxO.max.x))
+                            if (velocities[e].y < 0)
                             {
-
-                                if (boxO.min.x < boxE.max.x &&
-                                    positions[e].x < boxO.min.x + (boxO.max.x - boxO.min.x) / 2)
-                                {
-                                    positions[e].x = boxO.min.x - (boxE.max.x - boxE.min.x) / 2;
-                                    collision_states[e].x = 1;
-                                }
-                                if (boxE.min.x < boxO.max.x &&
-                                    positions[e].x > boxO.min.x + (boxO.max.x - boxO.min.x) / 2)
-                                {
-                                    positions[e].x = boxO.max.x + (boxE.max.x - boxE.min.x) / 2;
-                                    collision_states[e].x = -1;
-                                }
+                                positions[e].y += overlapY;
+                                collision_states[e].y = -1;
+                                normal = (Vector3){0, 1, 0};
                             }
-
-                            if (boxE.max.x >= boxO.min.x && boxE.min.x <= boxO.max.x && !(positions[e].z >= boxO.min.z && positions[e].z <= boxO.max.z))
+                            else if (velocities[e].y > 0)
                             {
-
-                                if (boxO.min.z < positions[e].z + (boxE.max.z - boxE.min.z) / 2 &&
-                                    positions[e].z < boxO.min.z + (boxO.max.z - boxO.min.z) / 2)
-                                {
-                                    positions[e].z = boxO.min.z - (boxE.max.z - boxE.min.z) / 2;
-                                    collision_states[e].z = 1;
-                                }
-                                if (positions[e].z - (boxE.max.z - boxE.min.z) / 2 < boxO.max.z &&
-                                    positions[e].z > boxO.min.z + (boxO.max.z - boxO.min.z) / 2)
-                                {
-                                    positions[e].z = boxO.max.z + (boxE.max.z - boxE.min.z) / 2;
-                                    collision_states[e].z = -1;
-                                }
+                                positions[e].y -= overlapY;
+                                collision_states[e].y = 1;
+                                normal = (Vector3){0, -1, 0};
                             }
+                        }
+                        else if (overlapX < overlapZ)
+                        {
+                            float dir = (centerE.x < centerO.x) ? -1.f : 1.f;
+                            collision_states[e].x = dir;
+                            positions[e].x += overlapX * dir;
+                            normal = (Vector3){dir, 0, 0};
+                        }
+                        else
+                        {
+                            float dir = (centerE.z < centerO.z) ? -1.f : 1.f;
+                            collision_states[e].z = dir;
+                            positions[e].z += overlapZ * dir;
+                            normal = (Vector3){0, 0, dir};
+                        }
+
+                        float vn = Vector3DotProduct(velocities[e], normal);
+                        if (vn < 0)
+                        {
+                            velocities[e] = Vector3Add(velocities[e], Vector3Scale(normal, -vn));
                         }
                     }
                 }
             }
 
-            positions[e] = Vector3Add(positions[e], Vector3Scale(velocities[e], dt));
+            accelerations[e] = (Vector3){0, 0, 0};
         }
 
         if (hasAnimation[e])
