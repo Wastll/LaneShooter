@@ -1,5 +1,3 @@
-Placeholder character used in this project:
-
 matt36 Color palette by mattt
 https://lospec.com/palette-list/matt36
 

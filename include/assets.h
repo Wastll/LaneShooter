@@ -10,6 +10,9 @@ typedef struct {
 
     Texture2D skybox;
     Texture2D texture_meadow;
+    Texture2D texture_crate;
+    Texture2D texture_barrel;
+    Texture2D texture_tree;
     
     Texture2D player_placeholder;
     Texture2D player_spritesheet_idle;
@@ -18,6 +21,9 @@ typedef struct {
 
     Model cube;
     Model cube_meadow;
+    Model cube_crate;
+    Model cylinder_barrel;
+    Model tree;
 
 } GameAssets;
 

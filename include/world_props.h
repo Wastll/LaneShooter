@@ -6,14 +6,14 @@
 
 typedef struct
 {
-    bool exists;
     Entity e;
     Model* model;
-    Vector2 pos;
-    Vector3 size;
     bool breakable;
     float hardness;
-} Prop;
+} PropComp;
+
+PropComp props[MAX_ENTITIES];
+bool hasProp[MAX_ENTITIES]; // Indicates if an entity has a prop component
 
 void init_props(void);
 void update_props(void);

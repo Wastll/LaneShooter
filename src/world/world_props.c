@@ -6,43 +6,47 @@
 #include "components.h"
 #include "stdio.h"
 
-#define MAX_PROPS 100
+Vector3 prop_offset = {0.5f, -0.5f, -0.5f};
 
-static Prop props[MAX_PROPS];
-
-static Prop init_prop(bool exists, Entity e, Model *model, Vector2 pos, Vector3 size, bool breakable, float hardness)
+static PropComp init_prop(Entity e, Model *model, Vector3 pos, bool breakable, float hardness)
 {
-    return (Prop){exists, e, model, pos, size, breakable, hardness};
+    hasProp[e] = true;
+    add_position(e, pos);
+    hasBoundingBox[e] = true;
+    bounding_boxes[e] = GetModelBoundingBox(*model);
+    hasCollision[e] = true;
+    add_collision_state(e);
+    add_origin_offset(e,prop_offset);
+    return (PropComp){e, model, breakable, hardness};
 }
 
-static Entity p_0;
-static Entity p_1;
+static PropComp init_prop_bb_scaled(Entity e, Model *model, Vector3 pos, bool breakable, float hardness, Vector3 bb_scale)
+{
+    hasProp[e] = true;
+    add_position(e, pos);
+    hasBoundingBox[e] = true;
+    bounding_boxes[e] = GetModelBoundingBox(*model);
+    add_bounding_box_scale(e, bb_scale);
+    hasCollision[e] = true;
+    add_collision_state(e);
+    add_origin_offset(e,prop_offset);
+    return (PropComp){e, model, breakable, hardness};
+}
+
 
 void init_props(void)
 {
-    for (int i = 0; i < MAX_PROPS; i++)
-        props[i].exists = false;
+    Entity floating_meadow = create_entity();
+    props[floating_meadow] = init_prop(floating_meadow,&get_assets()->cube_meadow, (Vector3){4, 3, -2}, false, 1.f);
 
-    p_0 = create_entity();
-    add_position(p_0, (Vector3){4, 3, -2.f});
-    hasBoundingBox[p_0] = true;
-    bounding_boxes[p_0].min = (Vector3){0,-1,-1};
-    bounding_boxes[p_0].max = Vector3Add(bounding_boxes[p_0].min,(Vector3){1,1,1});
-    hasCollision[p_0] = true;
-    add_collision_state(p_0);
+    Entity crate = create_entity();
+    props[crate] = init_prop(crate,&get_assets()->cube_crate, (Vector3){4, 1, -1}, false, 1.f);
 
-    props[0] = init_prop(true, p_0, &get_assets()->cube_meadow, (Vector2){3, 2.f}, (Vector3){1, 1, 1}, false, 1.f);
+    Entity barrel = create_entity();
+    props[barrel] = init_prop_bb_scaled(barrel,&get_assets()->cylinder_barrel, (Vector3){2, 1, -1}, false, 1.f,(Vector3){0.9f, 1.f, 0.9f});
 
-    p_1 = create_entity();
-    add_position(p_1, (Vector3){2, 1, -2.f});
-    hasBoundingBox[p_1] = true;
-    bounding_boxes[p_1].min = (Vector3){0,-1,-1};
-    bounding_boxes[p_1].max = Vector3Add(bounding_boxes[p_1].min,(Vector3){1,1,1});
-    hasCollision[p_1] = true;
-    add_collision_state(p_1);
-
-    props[1] = init_prop(true, p_1, &get_assets()->cube,(Vector2){1, 3.f}, (Vector3){1,1,1}, false, 1.f);
-    // props[2] = init_prop(true, &get_assets()->cube,(Vector2){1, 4.f}, (Vector3){1,1,1}, false, 1.f);
+    Entity tree = create_entity();
+    props[tree] = init_prop_bb_scaled(tree,&get_assets()->tree, (Vector3){2, 2, -3}, false, 1.f, (Vector3){0.4f, 1.f, 0.4f});
 }
 
 void update_props(void)
@@ -51,23 +55,14 @@ void update_props(void)
 
 void draw_props(void)
 {
-    for (int i = 0; i < MAX_PROPS; i++)
+    for (Entity e = 0; e < MAX_ENTITIES; e++)
     {
-        if (!props[i].exists)
-            continue;
-        Entity prop_e = props[i].e;
-        Vector3 prop_draw_pos =
-            (Vector3){
-                positions[prop_e].x + props[i].size.x / 2,
-                positions[prop_e].y - 0.5f,
-                positions[prop_e].z - props[i].size.z / 2};
+        if (!hasProp[e]) continue;
 
-        DrawModel(*props[i].model, prop_draw_pos, 1, WHITE);
+        PropComp* prop_data = &props[e];
+        DrawModel(*props[e].model,  Vector3Add(positions[e],prop_offset), 1, WHITE);
 
-        if (hasBoundingBox[props[i].e])
-        {
-            DrawBoundingBoxEx(prop_e, RED);
-        }
+        // if (hasBoundingBox[e]) DrawBoundingBoxEx(e, RED);
     }
-    // DrawBoundingBox(bounding_boxes[prop_e], PINK);
+
 }

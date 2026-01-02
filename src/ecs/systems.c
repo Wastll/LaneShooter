@@ -19,9 +19,16 @@ static BoundingBox get_bounding_box(Entity e)
 {
     BoundingBox box = bounding_boxes[e];
 
-    box.min = Vector3Add(box.min, positions[e]);
-    box.max = Vector3Add(box.max, positions[e]);
-
+    if (hasBoundingBoxScale[e])
+    {
+        box.min = Vector3Add(Vector3Add(Vector3Multiply(box.min,bounding_box_scales[e]), positions[e]), origin_offsets[e]);
+        box.max = Vector3Add(Vector3Add(Vector3Multiply(box.max,bounding_box_scales[e]), positions[e]), origin_offsets[e]);
+    }
+    else
+    {
+        box.min = Vector3Add(Vector3Add(box.min, positions[e]), origin_offsets[e]);
+        box.max = Vector3Add(Vector3Add(box.max, positions[e]), origin_offsets[e]);
+    }
     return box;
 }
 
@@ -84,7 +91,7 @@ void update_physics(float dt)
             if (hasCollisionState[e])
             {
                 BoundingBox boxE = get_bounding_box(e);
-                
+
                 if (collision_states[e].x != 0)
                     collision_states[e].x = 0;
                 if (collision_states[e].y != 0)

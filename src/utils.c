@@ -1,5 +1,6 @@
 #include "utils.h"
 #include "raymath.h"
+#include "components.h"
 
 void DrawBoundingBoxEx(Entity e, Color color){
     if(!hasPosition[e] || !hasBoundingBox[e]) return;
@@ -17,9 +18,10 @@ void DrawBoundingBoxEx(Entity e, Color color){
         box.min.z + size.z / 2.0f
     };
 
-    center = Vector3Add(center, positions[e]);
+    center = Vector3Add(Vector3Add(center, positions[e]), origin_offsets[e]);
 
-    DrawCubeWires(center, size.x, size.y, size.z, color);
+    if(hasBoundingBoxScale[e]) DrawCubeWires(center, size.x*bounding_box_scales[e].x, size.y*bounding_box_scales[e].y, size.z*bounding_box_scales[e].z, color);
+    else DrawCubeWires(center, size.x, size.y, size.z, color);
 }
 
 int sign(float num){

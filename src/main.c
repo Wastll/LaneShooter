@@ -2,7 +2,7 @@
 #include "game.h"
 #include "assets.h"
 
-#define FB_RATIO 4
+#define FB_RATIO 3
 
 #define screenWidth 1920
 #define screenHeight 1080

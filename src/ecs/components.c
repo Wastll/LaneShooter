@@ -6,6 +6,7 @@ char* names[MAX_ENTITIES] = {""};
 
 Anim animations[MAX_ENTITIES] = {0};
 Texture2D sprites[MAX_ENTITIES] = {0};
+Vector3 origin_offsets[MAX_ENTITIES] = {0};
 
 bool hasName[MAX_ENTITIES] = {false};
 
@@ -21,6 +22,7 @@ Vector3 velocities[MAX_ENTITIES] = {0};
 Vector3 accelerations[MAX_ENTITIES] = {0};
 Vector3 max_velocities[MAX_ENTITIES] = {0};
 BoundingBox bounding_boxes[MAX_ENTITIES] = {0};
+Vector3 bounding_box_scales[MAX_ENTITIES] = {{1,1,1}};
 Vector3 collision_states[MAX_ENTITIES] = {0};
 
 float frictions[MAX_ENTITIES] = {0};
@@ -28,6 +30,7 @@ float frictions[MAX_ENTITIES] = {0};
 
 // --- Physics usage flages ---
 
+bool hasOriginOffset[MAX_ENTITIES] = {false};
 bool hasPosition[MAX_ENTITIES] = {false};
 bool hasVelocity[MAX_ENTITIES] = {false};
 bool hasAcceleration[MAX_ENTITIES] = {false};
@@ -36,9 +39,21 @@ bool hasMaxVelocity[MAX_ENTITIES] = {false};
 bool hasGravity[MAX_ENTITIES] = {false};
 bool hasCollision[MAX_ENTITIES] = {false};
 bool hasBoundingBox[MAX_ENTITIES] = {false};
+bool hasBoundingBoxScale[MAX_ENTITIES] = {false};
 bool hasCollisionState[MAX_ENTITIES] = {false};
 
 // --- Init helpers ---
+
+void add_name(Entity e,char* name){
+    hasName[e]=true;
+    names[e]=name;
+}
+
+void add_origin_offset(Entity e, Vector3 offset)
+{
+    origin_offsets[e] = offset;
+    hasOriginOffset[e] = true;
+}
 
 void add_position(Entity e, Vector3 pos)
 {
@@ -75,12 +90,12 @@ void add_bounding_box(Entity e, BoundingBox bb){
     hasBoundingBox[e] = true;
 }
 
+void add_bounding_box_scale(Entity e, Vector3 bb_scale){
+    bounding_box_scales[e] = bb_scale;
+    hasBoundingBoxScale[e] = true;
+}
+
 void add_collision_state(Entity e){
     hasCollisionState[e]=true;
     collision_states[e]=(Vector3){0,0,0};
-}
-
-void add_name(Entity e,char* name){
-    hasName[e]=true;
-    names[e]=name;
 }
