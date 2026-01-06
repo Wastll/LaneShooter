@@ -2,19 +2,18 @@
 #include "assets.h"
 #include "systems.h"
 #include "player.h"
-#include "string.h"
-#include "stdio.h"
 #include "world.h"
 #include "cam.h"
-#include "rlgl.h"
+#include "keyhandler.h"
+#include "anim_defs.h"
+#include "debug_system.h"
 
 static RenderTexture2D target;
-static Entity e_cam = 0;
-static Entity e_player = 1;
 
 void init_game(int fb_w, int fb_h)
 {
     init_assets();
+    init_animation_defs();
     init_world();
     init_player();
     init_cam();
@@ -26,10 +25,11 @@ void init_game(int fb_w, int fb_h)
 void update_game(void)
 {
     float dt = GetFrameTime();
+    poll_keys();
+    input_system();
     update_physics(dt);
-    update_player();
-    update_world(dt);
-    update_cam(positions[e_player].x - positions[e_cam].x);
+    camera_system();
+    animation_system(dt);
 }
 
 void draw_framebuffer()
@@ -42,10 +42,10 @@ void draw_framebuffer()
 
     // --- 3D ---
     BeginMode3D(*get_cam());
-    draw_world();
-    DrawSphere(get_cam()->target, 0.05f, RED); // Camera target marker
+    render_models();
+    render_multi_models();
+
     EndMode3D();
-    
     EndTextureMode();
 }
 
@@ -64,37 +64,19 @@ void draw_upscale()
     // --- 3D ---
     BeginMode3D(*get_cam());
 
-    //Redraw lanes in upscaled version to get z-ordering
+    // Redraw lanes in upscaled version to get z-ordering
     rlEnableDepthTest();
     glColorMask(0, 0, 0, 0);
-    draw_world();
+    render_models();
+    render_multi_models();
     glColorMask(1, 1, 1, 1);
 
-    draw_player(get_cam());
-    DrawSphere((Vector3){0, 0, 0}, 0.05f, RED); // Origin marker
+    render_billboards(get_cam());
+    debug_info_3d();
+
     EndMode3D();
 
-    draw_ui();
+    debug_info_2d();
 
     EndDrawing();
-}
-
-// Will get moved later
-void draw_ui(void)
-{
-    DrawText(TextFormat("%d FPS", GetFPS()), 10, 10, 20, PINK);
-    int x = 10, y = GetScreenHeight() - 100;
-    int spacing = 24;
-
-    DrawText(TextFormat("POS: X %.2f  Y %.2f  Z %.2f",
-                        positions[e_player].x, positions[e_player].y, positions[e_player].z),
-             x, y, 20, GREEN);
-
-    DrawText(TextFormat("VEL: X %.2f  Y %.2f  Z %.2f",
-                        velocities[e_player].x, velocities[e_player].y, velocities[e_player].z),
-             x, y + spacing, 20, YELLOW);
-
-    DrawText(TextFormat("ACC: X %.2f  Y %.2f  Z %.2f",
-                        accelerations[e_player].x, accelerations[e_player].y, accelerations[e_player].z),
-             x, y + 2 * spacing, 20, ORANGE);
 }

@@ -1,66 +1,51 @@
-// world.c
+#include "raylib.h"
 #include "world.h"
 #include "assets.h"
 #include "world_props.h"
-#include "raymath.h"
 
-Color lane_depth_tint[WORLD_LANES_H];
+#define DEPTH_DARKNESS 18
+#define CUBE_SCALE 1.f // probably unnecessary
 
-// Lanes / Ground as part of ECS
-
-Entity e_lanes;
 static void init_lanes(void)
 {
-    e_lanes = create_entity();
+    Entity e_lanes = create_entity_name("Ground");
     add_position(e_lanes, (Vector3){0, 0, 0});
-    hasBoundingBox[e_lanes]=true;
-    bounding_boxes[e_lanes].min = (Vector3){0,-1,-WORLD_LANES_H};
-    bounding_boxes[e_lanes].max = (Vector3){WORLD_LANES_W,0,0};
+    hasBoundingBox[e_lanes] = true;
+    bounding_boxes[e_lanes].min = (Vector3){0, -1, -WORLD_LANES_H};
+    bounding_boxes[e_lanes].max = (Vector3){WORLD_LANES_W, 0, 0};
     add_collision_state(e_lanes);
-}
 
-static void update_lanes(void) {}
-
-static void draw_lanes(void)
-{
-    float cube_scale = 1.0f;
-
-    Vector3 cube_pos = positions[e_lanes];
+    hasMultiModelRenderer[e_lanes] = true;
+    MultiModelRenderer *mmr = &multi_model_renderers[e_lanes];
+    mmr->count = 0;
 
     for (int i = 0; i < WORLD_LANES_W; i++)
+    {
         for (int j = 0; j < WORLD_LANES_H; j++)
         {
-            cube_pos =
-                (Vector3){
-                    i * cube_scale + cube_scale / 2 + positions[e_lanes].x,
-                    -cube_scale / 2 + positions[e_lanes].y,
-                    -j * cube_scale - cube_scale / 2 + positions[e_lanes].z};
+            if (mmr->count >= MAX_MODELS_PER_ENTITY)
+                break;
 
-            DrawModel(get_assets()->cube_meadow, cube_pos, cube_scale, lane_depth_tint[j]);
+            Vector3 cube_pos = {
+                i * CUBE_SCALE +  CUBE_SCALE / 2,
+                -CUBE_SCALE / 2,
+                -j * CUBE_SCALE - CUBE_SCALE / 2};
+
+            mmr->models[mmr->count++] = (ModelRenderer){
+                .model = &get_assets()->cube_meadow,
+                .offset = cube_pos,
+                .scale = CUBE_SCALE,
+                .tint = (Color){255 + cube_pos.z * DEPTH_DARKNESS, 255 + cube_pos.z * DEPTH_DARKNESS, 255, 255}};
         }
+    }
 }
 
 void init_world(void)
 {
     init_props();
     init_lanes();
-    int lane_depth_darkness_lvl = 18;
-    for (int i = 0; i < WORLD_LANES_H; i++)
-        lane_depth_tint[i] = (Color){255 - lane_depth_darkness_lvl * i, 255 - lane_depth_darkness_lvl * i, 255, 255}; // Init depth shading color values
 }
 
-void update_world(float dt)
-{
-    update_props();
-}
-
-void draw_world()
-{
-    draw_lanes();
-    draw_props();
-}
-
-// Background as part of the world for now
 void draw_background(int fb_w, int fb_h)
 {
     DrawTexturePro(
@@ -69,5 +54,3 @@ void draw_background(int fb_w, int fb_h)
         (Rectangle){0, 0, fb_w, fb_h},
         (Vector2){0, 0}, 0, WHITE);
 }
-
-

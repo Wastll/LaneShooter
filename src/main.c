@@ -1,6 +1,5 @@
 #include "raylib.h"
 #include "game.h"
-#include "assets.h"
 
 #define FB_RATIO 3
 
@@ -10,7 +9,6 @@
 #define renderWidth screenWidth/FB_RATIO
 #define renderHeight screenHeight/FB_RATIO
 
-
 int main(void)
 {
     SetConfigFlags(FLAG_WINDOW_HIGHDPI);
@@ -19,7 +17,6 @@ int main(void)
     SetWindowMonitor(2);
     ToggleFullscreen();
     SetTargetFPS(60);
-
 
     while (!WindowShouldClose())
     {
