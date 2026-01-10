@@ -1,6 +1,10 @@
-# LaneShooter
+# LaneShooter - Baseline
 
-A Raylib C semi-3D pixel art shooter game
+This branch contains the most generic, genre-agnostic version of the core game.
+No shooter-specific mechanics are implemented here.
+
+It serves as a stable baseline for future forks, experiments, or as a recovery point
+before major gameplay decisions were introduced.
 
 ## Requirements
 - [Raylib 5.5](https://www.raylib.com/)
